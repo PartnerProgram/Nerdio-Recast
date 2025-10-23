@@ -76,29 +76,36 @@
 <body class="min-h-screen bg-bg-main text-primary-text antialiased font-['Inter']">
   <div id="app" class="min-h-screen"></div>
   <script>
+    const DEFAULT_INPUTS = {
+      users: 5000,
+      apps: 250,
+      costPerHour: 75,
+      azureCostAnnual: 1000000,
+      subscriptionAnnual: 350000,
+      hoursPerAppSaved: 8,
+      adminHoursPer100PerMonth: 60,
+      endUserMinsPerUserPerMonth: 5,
+      azureReductionPct: 20
+    };
     const STATE = {
       tab: 'current',
       showLabelsRecast: false,
       showLabelsNerdio: false,
-      roiMode: 'combined', // 'recast' | 'combined'
-      inputs: {
-        users: 5000,
-        apps: 250,
-        costPerHour: 75,
-        azureInfraCostYr: 1000000,
-        subCostRecastYr: 150000,
-        subCostNerdioYr: 200000,
-        pkgHoursPerApp: 8, // 5–10 typical
-        nerdioHrsPer100: 25, // 20–30 typical
-        azureSavePct: 20, // up to ~55% with autoscale
-        endUserMinsPerUser: 5, // optional productivity lift
-        onboardingMins: 60,
-        patchPct: 95
-      },
-      copied: false
+      advancedOpen: false,
+      copied: false,
+      inputs: { ...DEFAULT_INPUTS }
     };
-    function render(){
-      const root=document.getElementById('app');
+    function loadState() {
+      const saved = localStorage.getItem('roiInputs');
+      if (saved) {
+        STATE.inputs = { ...DEFAULT_INPUTS, ...JSON.parse(saved) };
+      }
+    }
+    function saveState() {
+      localStorage.setItem('roiInputs', JSON.stringify(STATE.inputs));
+    }
+    function render() {
+      const root = document.getElementById('app');
       root.innerHTML = `
         <header class="relative overflow-hidden">
           <div aria-hidden="true" class="absolute inset-0">
@@ -328,125 +335,94 @@
                   <div class="mt-1 text-[11px] text-secondary-text">Workspace launches the correct app instantly</div>
                 </div>
               </div>
-              <div id="flowSuccess" class="mt-2 hidden text-accent text-[13px] inline-flex items-center gap-1"><i data-lucide="sparkles" class="h-4 w-4" aria-hidden="true"></i><span>Desktop + apps delivered together with identity and rings.</span></div>
+              <div id="flowSuccess" class="mt-2 hidden text-accent text-[13px] inline-flex items-center gap-1"><i data-lucide="sparkles" class="h-4 h-4" aria-hidden="true"></i><span>Desktop + apps delivered together with identity and rings.</span></div>
             </div>
           </div>
         </section>
       `;
     }
-    function renderOutcomes(){
-      const t=STATE.inputs;
+    function renderOutcomes() {
       const calc = computeROI();
       return `
         <section id="panel-outcomes" class="space-y-4" aria-label="ROI & Outcomes">
           <div class="bg-bg-card rounded-2xl border border-border shadow-md p-4">
-            <div class="flex items-center justify-between gap-3 flex-wrap">
-              <h2 class="text-xl font-semibold">ROI — ${STATE.roiMode==='recast'?'Recast Only':'Nerdio + Recast (Better Together)'}</h2>
-              <div class="inline-flex rounded-full bg-bg-card border border-border p-1 shadow-sm" role="tablist" aria-label="ROI Mode">
-                ${roiModeBtn('recast','Recast Only')}
-                ${roiModeBtn('combined','Nerdio + Recast')}
+            <h2 class="text-xl font-semibold">ROI — Nerdio + Recast (Better Together)</h2>
+            <p class="mt-1 text-secondary-text">From desktop orchestration to application governance — one flow, measurable return.</p>
+            <div aria-live="polite" class="mt-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div class="col-span-1 md:col-span-3">
+                  <div class="text-5xl font-bold text-accent">${Math.round(calc.netROI)}%</div>
+                  <p class="text-sm text-secondary-text">Net ROI</p>
+                </div>
+                <div>
+                  <div class="text-3xl font-semibold">${fmtCurrencyShort(calc.totalAnnualSavings)}</div>
+                  <p class="text-sm text-secondary-text">Total Annual Savings</p>
+                </div>
+                <div>
+                  <div class="text-3xl font-semibold">${isFinite(calc.paybackMonths) ? `~${calc.paybackMonths.toFixed(1)}` : 'N/A'}</div>
+                  <p class="text-sm text-secondary-text">Payback (months)</p>
+                </div>
+              </div>
+              <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <article class="bg-bg-card rounded-xl border border-border p-4">
+                  <div class="flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-accent" aria-hidden="true"></i><h3 class="font-semibold">Productivity</h3></div>
+                  <div class="mt-2 text-2xl font-bold">${fmtNumberShort(calc.totalHoursSavedAnnual)} hrs / yr</div>
+                  <p class="text-sm text-secondary-text">(≈ ${Math.round(calc.equivalentFTEs)} FTEs)</p>
+                </article>
+                <article class="bg-bg-card rounded-xl border border-border p-4">
+                  <div class="flex items-center gap-2"><i data-lucide="trending-down" class="w-5 h-5 text-accent" aria-hidden="true"></i><h3 class="font-semibold">Cost Efficiency</h3></div>
+                  <div class="mt-2 text-2xl font-bold">${fmtCurrencyShort(calc.azureSavingsAnnual)}</div>
+                  <p class="text-sm text-secondary-text">Azure savings / yr</p>
+                </article>
+                <article class="bg-bg-card rounded-xl border border-border p-4">
+                  <div class="flex items-center gap-2"><i data-lucide="shield-check" class="w-5 h-5 text-accent" aria-hidden="true"></i><h3 class="font-semibold">Compliance Readiness</h3></div>
+                  <div class="mt-2 text-2xl font-bold">&gt;95%</div>
+                  <p class="text-sm text-secondary-text flex items-center gap-1">patch compliance maintained <i data-lucide="help-circle" class="w-4 h-4 text-secondary-text" title="Driven by integrated release & patch orchestration + SSO governance." aria-hidden="true"></i></p>
+                </article>
               </div>
             </div>
-            <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-4" aria-label="Top KPIs">
-              ${kpi('Minutes saved per user / mo','timer', `${fmtNumber(t.endUserMinsPerUser)} min`, slider('endUserMinsPerUser',0,30,1,t.endUserMinsPerUser))}
-              ${kpi('Packaging hours avoided / app','scissors', `${fmtNumber(t.pkgHoursPerApp)} hrs`, slider('pkgHoursPerApp',3,12,0.5,t.pkgHoursPerApp))}
-              ${kpi('Patch-compliance target','shield-check', `${fmtNumber(t.patchPct)} %`, slider('patchPct',85,100,1,t.patchPct))}
-              ${kpi('Azure cost reduction (autoscale)','trending-down', `${fmtNumber(t.azureSavePct)} %`, slider('azureSavePct',0,55,1,t.azureSavePct, STATE.roiMode==='combined'))}
-            </div>
-            <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
-              <section class="bg-bg-card rounded-xl border border-border p-4" aria-label="Inputs">
-                <h3 class="font-semibold text-sm flex items-center gap-2"><i data-lucide="sliders-horizontal" class="w-4 h-4" aria-hidden="true"></i>Inputs</h3>
-                <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  ${numberInput('Users', 'users', t.users, 0, 200000, 1, 'Total employees/desktops')}
-                  ${numberInput('Apps to package', 'apps', t.apps, 0, 5000, 1, 'Unique applications')}
-                  ${moneyInput('Avg loaded cost / hour', 'costPerHour', t.costPerHour, 0, 500, 1, 'Fully burdened IT cost')}
-                  ${moneyInput('Azure infra cost / year', 'azureInfraCostYr', t.azureInfraCostYr, 0, 100000000, 1000, 'Compute + storage (eligible)')}
-                  ${moneyInput('Recast subscription / year', 'subCostRecastYr', t.subCostRecastYr, 0, 5000000, 1000, 'List or your price')}
-                  ${moneyInput('Nerdio subscription / year', 'subCostNerdioYr', t.subCostNerdioYr, 0, 5000000, 1000, 'List or your price', STATE.roiMode==='combined')}
+            <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <section aria-label="Required Inputs">
+                <h3 class="font-semibold flex items-center gap-2"><i data-lucide="sliders-horizontal" class="w-4 h-4 text-accent" aria-hidden="true"></i>Required Assumptions</h3>
+                <div class="mt-3 grid grid-cols-1 gap-3">
+                  ${numberInput('Users', 'users', STATE.inputs.users, 100, 200000, 100, 'Total AVD users in scope')}
+                  ${numberInput('Unique applications', 'apps', STATE.inputs.apps, 20, 5000, 10, 'Apps that need packaging/governance')}
+                  ${moneyInput('Avg loaded cost / hour', 'costPerHour', STATE.inputs.costPerHour, 30, 200, 1, 'Fully burdened IT cost (USD)')}
+                  ${moneyInput('Azure infra cost / year', 'azureCostAnnual', STATE.inputs.azureCostAnnual, 50000, 20000000, 10000, 'Eligible for autoscale savings')}
+                  ${moneyInput('Combined subscription / year', 'subscriptionAnnual', STATE.inputs.subscriptionAnnual, 100000, 2000000, 10000, 'Nerdio + Recast combined (editable)')}
                 </div>
-                <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  ${kpiSmall('Nerdio admin hours saved / 100 desktops / mo','clock-8', `${fmtNumber(t.nerdioHrsPer100)} hrs`, slider('nerdioHrsPer100',10,40,1,t.nerdioHrsPer100, STATE.roiMode==='combined'))}
-                  ${kpiSmall('Onboarding target (desktop + apps)','hourglass', `${fmtNumber(t.onboardingMins)} mins`, slider('onboardingMins',30,180,5,t.onboardingMins))}
-                </div>
-                <p class="mt-3 text-[11px] text-secondary-text">Tip: Toggle “Recast Only” to isolate app packaging/patching value, then compare to “Nerdio + Recast”.</p>
               </section>
-              <section class="bg-bg-card rounded-xl border border-border p-4 lg:col-span-2" aria-label="Outputs">
-                <h3 class="font-semibold text-sm flex items-center gap-2"><i data-lucide="calculator" class="w-4 h-4" aria-hidden="true"></i>Outputs</h3>
-                <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-                  ${outKpi('Hours saved / month (IT + end-users)','clock', fmtNumber(calc.hoursMonth,0), 'hrs')}
-                  ${outKpi('Labor savings / year','badge-dollar-sign', fmtCurrency(calc.laborYr))}
-                  ${outKpi('Azure infra savings / year', 'server', STATE.roiMode==='combined'?fmtCurrency(calc.infraYr):'—')}
-                  ${outKpi('Total savings / year', 'piggy-bank', fmtCurrency(calc.totalSaveYr))}
-                </div>
-                <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
-                  ${outKpi('Equivalent IT FTEs freed', 'users', fmtNumber(calc.fte,2))}
-                  ${outKpi('Annual subscription cost', 'receipt', fmtCurrency(calc.subCostYr))}
-                  ${outKpi('ROI (net)', 'trending-up', calc.subCostYr>0?`${fmtNumber(calc.roiPct,0)} %`:'—')}
-                </div>
-                <div class="mt-4 rounded-lg border border-border bg-gray-50 p-3">
-                  <h4 class="text-sm font-semibold mb-2">Assumptions & Method</h4>
-                  <ul class="text-xs text-secondary-text space-y-1">
-                    <li>Recast app packaging time avoided: <span class="font-medium">${fmtNumber(t.pkgHoursPerApp)} hrs / app</span> × <span class="font-medium">${fmtNumber(t.apps)} apps</span>.</li>
-                    <li>End-user productivity: <span class="font-medium">${fmtNumber(t.endUserMinsPerUser)} min / user / mo</span> → converted to hours.</li>
-                    ${STATE.roiMode==='combined' ? `
-                    <li>Nerdio admin time avoided: <span class="font-medium">${fmtNumber(t.nerdioHrsPer100)} hrs / 100 desktops / mo</span> × ${fmtNumber(t.users)} users.</li>
-                    <li>Azure autoscale savings: <span class="font-medium">${fmtNumber(t.azureSavePct)}%</span> of annual infra cost.</li>`:''}
-                    <li>Labor savings uses loaded rate: <span class="font-medium">${fmtCurrency(t.costPerHour)}</span>.</li>
-                    <li>FTEs = total hours saved per year ÷ 2080.</li>
-                  </ul>
-                </div>
-                <div class="mt-3 flex flex-wrap gap-2">
-                  <button type="button" class="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent inline-flex items-center gap-2" data-action="copy">
-                    <i data-lucide="clipboard" class="w-4 h-4" aria-hidden="true"></i>${STATE.copied?'Copied!':'Copy summary'}
-                  </button>
-                  <button type="button" class="rounded-full border border-border bg-bg-card px-4 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="tab" data-id="approach">Back to click-through</button>
+              <section aria-label="Advanced Assumptions">
+                <button type="button" class="w-full flex items-center justify-between rounded-lg border border-border bg-bg-card px-4 py-2 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="toggle-advanced">
+                  Advanced Assumptions
+                  <i data-lucide="${STATE.advancedOpen ? 'chevron-up' : 'chevron-down'}" class="w-4 h-4" aria-hidden="true"></i>
+                </button>
+                <div class="${STATE.advancedOpen ? 'block' : 'hidden'} mt-3 grid grid-cols-1 gap-3">
+                  ${numberInput('Packaging hours avoided per app', 'hoursPerAppSaved', STATE.inputs.hoursPerAppSaved, 2, 12, 0.5, 'Time saved using curated catalog + automation')}
+                  ${numberInput('Admin hours saved / 100 users / month', 'adminHoursPer100PerMonth', STATE.inputs.adminHoursPer100PerMonth, 10, 80, 1, 'Automation across imaging, policy, approvals')}
+                  ${numberInput('End-user minutes saved / user / month', 'endUserMinsPerUserPerMonth', STATE.inputs.endUserMinsPerUserPerMonth, 0, 15, 1, 'Faster access + self-service')}
+                  ${percentInput('Azure cost reduction (%)', 'azureReductionPct', STATE.inputs.azureReductionPct, 5, 50, 1, 'Autoscale & hygiene')}
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" class="rounded-full border border-border bg-bg-card px-3 py-1.5 text-sm" data-action="preset" data-preset="conservative">Conservative</button>
+                    <button type="button" class="rounded-full border border-border bg-bg-card px-3 py-1.5 text-sm" data-action="preset" data-preset="benchmark">Benchmark</button>
+                    <button type="button" class="rounded-full border border-border bg-bg-card px-3 py-1.5 text-sm" data-action="preset" data-preset="aggressive">Aggressive</button>
+                  </div>
                 </div>
               </section>
             </div>
+            <div class="mt-6 rounded-lg border border-border bg-gray-50 p-4">
+              <h3 class="font-semibold text-sm">Methodology</h3>
+              <p class="mt-2 text-sm text-secondary-text">Calculations based on industry benchmarks for automation impact. Labor savings from packaging, admin, and end-user productivity. Azure savings via autoscale and optimization. Complete the Microsoft workspace — Nerdio orchestrates desktops; Recast governs applications and access. Contact us for customized analysis.</p>
+              <button type="button" class="mt-3 rounded-full border border-border bg-bg-card px-4 py-2 text-sm" data-action="reset-benchmarks">Reset to Benchmarks</button>
+            </div>
+            <button type="button" class="mt-4 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white inline-flex items-center gap-2" data-action="copy">
+              <i data-lucide="clipboard" class="w-4 h-4" aria-hidden="true"></i>${STATE.copied ? 'Copied!' : 'Copy Summary'}
+            </button>
           </div>
         </section>
       `;
     }
-    function roiModeBtn(mode,label){
-      const active=STATE.roiMode===mode;
-      return `<button type="button" role="tab" aria-selected="${active}" class="${active?'bg-accent text-white':'text-secondary-text hover:bg-gray-100'} px-3 py-1.5 rounded-full text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="roi-mode" data-id="${mode}">${label}</button>`;
-    }
-    function kpi(title,icon,value,controlHtml){
-      return `
-        <div class="bg-bg-card rounded-xl border border-border p-3">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-xs text-secondary-text">${title}</div>
-              <div class="text-xl font-semibold">${value}</div>
-            </div>
-            <i data-lucide="${icon}" class="w-5 h-5 text-accent" aria-hidden="true"></i>
-          </div>
-          ${controlHtml||''}
-        </div>
-      `;
-    }
-    function kpiSmall(title,icon,value,controlHtml){
-      return `
-        <div class="rounded-lg border border-border bg-gray-50 p-3">
-          <div class="flex items-center justify-between">
-            <div class="text-xs text-secondary-text">${title}</div>
-            <i data-lucide="${icon}" class="w-4 h-4 text-accent" aria-hidden="true"></i>
-          </div>
-          <div class="mt-1 text-lg font-semibold">${value}</div>
-          ${controlHtml||''}
-        </div>
-      `;
-    }
-    function slider(key,min,max,step,val,enabled=true){
-      return `
-        <label class="mt-2 flex items-center gap-2 text-xs ${enabled?'':'opacity-50'}">
-          <span class="text-secondary-text">Target</span>
-          <input ${enabled?'':'disabled'} type="range" min="${min}" max="${max}" step="${step}" value="${val}" data-action="range" data-key="${key}" class="w-full accent-accent" aria-label="${key}">
-          <output class="w-12 text-right" aria-live="polite">${val}</output>
-        </label>
-      `;
-    }
-    function numberInput(label,key,value,min,max,step,help){
+    function numberInput(label, key, value, min, max, step, help) {
       return `
         <label class="block">
           <span class="text-xs text-secondary-text">${label}</span>
@@ -456,106 +432,94 @@
         </label>
       `;
     }
-    function moneyInput(label,key,value,min,max,step,help,enabled=true){
+    function moneyInput(label, key, value, min, max, step, help) {
       return `
-        <label class="block ${enabled?'':'opacity-50'}">
+        <label class="block">
           <span class="text-xs text-secondary-text">${label}</span>
           <div class="mt-1 relative">
             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-text">$</span>
-            <input ${enabled?'':'disabled'} type="number" inputmode="numeric" class="w-full rounded-lg bg-gray-50 pl-7 pr-3 py-2 border border-border focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+            <input type="number" inputmode="numeric" class="w-full rounded-lg bg-gray-50 pl-7 pr-3 py-2 border border-border focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
                    value="${value}" min="${min}" max="${max}" step="${step}" data-action="number" data-key="${key}" aria-describedby="${key}-help">
           </div>
           <span id="${key}-help" class="text-[11px] text-secondary-text">${help||''}</span>
         </label>
       `;
     }
-    function outKpi(title,icon,value,unit){
+    function percentInput(label, key, value, min, max, step, help) {
       return `
-        <div class="bg-bg-card rounded-xl border border-border p-3">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-xs text-secondary-text">${title}</div>
-              <div class="text-xl font-semibold">${value}${unit?` <span class="text-sm font-normal text-secondary-text">${unit}</span>`:''}</div>
-            </div>
-            <i data-lucide="${icon}" class="w-5 h-5 text-accent" aria-hidden="true"></i>
+        <label class="block">
+          <span class="text-xs text-secondary-text">${label}</span>
+          <div class="mt-1 relative">
+            <input type="number" inputmode="numeric" class="w-full rounded-lg bg-gray-50 pr-7 pl-3 py-2 border border-border focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+                   value="${value}" min="${min}" max="${max}" step="${step}" data-action="number" data-key="${key}" aria-describedby="${key}-help">
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-text">%</span>
           </div>
-        </div>
+          <span id="${key}-help" class="text-[11px] text-secondary-text">${help||''}</span>
+        </label>
       `;
     }
-    function computeROI(){
-      const t = sanitizeInputs(STATE.inputs);
-      const endUserHoursMonth = (t.users * t.endUserMinsPerUser) / 60;
-      const recastPkgHoursMonth = t.apps * t.pkgHoursPerApp;
-      const nerdioHoursMonth = STATE.roiMode==='combined' ? (t.users/100) * t.nerdioHrsPer100 : 0;
-      const totalHoursMonth = Math.max(0, endUserHoursMonth + recastPkgHoursMonth + nerdioHoursMonth);
-      const laborYr = totalHoursMonth * t.costPerHour * 12;
-      const infraYr = STATE.roiMode==='combined'
-        ? (t.azureInfraCostYr * (t.azureSavePct/100))
-        : 0;
-      const subCostYr = STATE.roiMode==='combined'
-        ? (t.subCostRecastYr + t.subCostNerdioYr)
-        : t.subCostRecastYr;
-      const totalSaveYr = laborYr + infraYr;
-      const net = totalSaveYr - subCostYr;
-      const roiPct = subCostYr>0 ? (net / subCostYr) * 100 : 0;
-      const fte = (totalHoursMonth * 12) / 2080;
+    function computeROI() {
+      const i = sanitizeInputs(STATE.inputs);
+      const groupsOf100 = Math.min(i.users / 100, 1000);
+      const hoursSavedPackaging = i.apps * i.hoursPerAppSaved;
+      const hoursSavedAdminAnnual = i.adminHoursPer100PerMonth * groupsOf100 * 12;
+      const hoursSavedEndUserAnnual = (i.endUserMinsPerUserPerMonth / 60) * i.users * 12;
+      const totalHoursSavedAnnual = hoursSavedPackaging + hoursSavedAdminAnnual + hoursSavedEndUserAnnual;
+      const laborSavingsAnnual = totalHoursSavedAnnual * i.costPerHour;
+      const azureSavingsAnnual = i.azureCostAnnual * (i.azureReductionPct / 100);
+      const totalAnnualSavings = laborSavingsAnnual + azureSavingsAnnual;
+      const net = totalAnnualSavings - i.subscriptionAnnual;
+      const netROI = i.subscriptionAnnual > 0 && net > 0 ? (net / i.subscriptionAnnual) * 100 : 0;
+      const paybackMonths = totalAnnualSavings > 0 && i.subscriptionAnnual > 0 ? i.subscriptionAnnual / (totalAnnualSavings / 12) : Infinity;
+      const equivalentFTEs = totalHoursSavedAnnual / 2080;
       return {
-        hoursMonth: totalHoursMonth,
-        laborYr,
-        infraYr,
-        totalSaveYr,
-        subCostYr,
-        roiPct,
-        fte,
-        summary: buildSummary(t, {totalHoursMonth, laborYr, infraYr, totalSaveYr, subCostYr, roiPct, fte})
+        totalHoursSavedAnnual,
+        azureSavingsAnnual,
+        totalAnnualSavings,
+        netROI,
+        paybackMonths,
+        equivalentFTEs,
+        summary: buildSummary(i, { netROI, totalAnnualSavings, paybackMonths, totalHoursSavedAnnual, equivalentFTEs, azureSavingsAnnual })
       };
     }
-    function buildSummary(t, c){
-      const modeTitle = STATE.roiMode==='combined' ? 'Nerdio + Recast (Better Together)' : 'Recast Only';
-      const lines = [
-        `ROI Summary — ${modeTitle}`,
-        '',
-        'Assumptions',
-        `Users: ${fmtNumber(t.users)} | Apps: ${fmtNumber(t.apps)} | Loaded cost/hr: ${fmtCurrency(t.costPerHour)}`,
-        `Packaging avoided/app: ${fmtNumber(t.pkgHoursPerApp)} hrs | End-user productivity: ${fmtNumber(t.endUserMinsPerUser)} min/user/mo`,
-        ...(STATE.roiMode==='combined' ? [
-          `Nerdio admin savings: ${fmtNumber(t.nerdioHrsPer100)} hrs / 100 desktops / mo`,
-          `Azure autoscale savings: ${fmtNumber(t.azureSavePct)}% of annual infra ($${fmtNumber(t.azureInfraCostYr,0)})`
-        ] : []),
-        '',
-        'Results',
-        `Hours saved / month: ${fmtNumber(c.totalHoursMonth,0)} hrs`,
-        `Labor savings / year: ${fmtCurrency(c.laborYr)}`,
-        ...(STATE.roiMode==='combined' ? [`Azure infra savings / year: ${fmtCurrency(c.infraYr)}`] : []),
-        `Total savings / year: ${fmtCurrency(c.totalSaveYr)}`,
-        `Annual subscription cost: ${fmtCurrency(c.subCostYr)}`,
-        `ROI (net): ${fmtNumber(c.roiPct,0)}%`,
-        `Equivalent IT FTEs freed: ${fmtNumber(c.fte,2)} FTEs`,
-        '',
-        'Notes',
-        `Targets: Onboarding ≤ ${fmtNumber(t.onboardingMins)} mins, Patch compliance ≥ ${fmtNumber(t.patchPct)}%.`,
-        'All values illustrative. Replace with your data.'
-      ];
-      return lines.join('\n');
+    function buildSummary(i, c) {
+      return `Net ROI: ${Math.round(c.netROI)}% | Total Annual Savings: ~${fmtCurrencyShort(c.totalAnnualSavings)} | Payback: ~${isFinite(c.paybackMonths) ? c.paybackMonths.toFixed(1) : 'N/A'} months.
+Drivers: ${fmtNumberShort(c.totalHoursSavedAnnual)} hrs/yr saved (≈${Math.round(c.equivalentFTEs)} FTEs), ${fmtCurrencyShort(c.azureSavingsAnnual)} Azure autoscale savings, >95% patch compliance maintained.
+Assumptions: ${fmtNumberShort(i.users)} users, ${i.apps} apps, $${i.costPerHour}/hr, $${fmtShort(i.azureCostAnnual)} Azure cost, ${i.azureReductionPct}% autoscale, ${i.hoursPerAppSaved} hrs/app, ${i.adminHoursPer100PerMonth} admin hrs/100 users/mo, ${i.endUserMinsPerUserPerMonth} min/user/mo.`;
     }
-    function sanitizeInputs(inp){
-      const o = {...inp};
-      const keys = Object.keys(o);
-      keys.forEach(k=>{
-        let v = Number(o[k]);
-        if (Number.isNaN(v)) v = 0;
-        if (v < 0) v = 0;
-        o[k] = v;
+    function sanitizeInputs(inp) {
+      const o = {};
+      Object.keys(DEFAULT_INPUTS).forEach(k => {
+        let v = Number(inp[k]);
+        o[k] = isFinite(v) ? v : DEFAULT_INPUTS[k];
       });
-      o.patchPct = Math.min(100, Math.max(0, o.patchPct));
-      o.azureSavePct = Math.min(55, Math.max(0, o.azureSavePct));
+      o.users = clamp(o.users, 100, 200000);
+      o.apps = clamp(o.apps, 20, 5000);
+      o.costPerHour = clamp(o.costPerHour, 30, 200);
+      o.azureCostAnnual = clamp(o.azureCostAnnual, 50000, 20000000);
+      o.subscriptionAnnual = clamp(o.subscriptionAnnual, 100000, 2000000);
+      o.hoursPerAppSaved = clamp(o.hoursPerAppSaved, 2, 12);
+      o.adminHoursPer100PerMonth = clamp(o.adminHoursPer100PerMonth, 10, 80);
+      o.endUserMinsPerUserPerMonth = clamp(o.endUserMinsPerUserPerMonth, 0, 15);
+      o.azureReductionPct = clamp(o.azureReductionPct, 5, 50);
       return o;
     }
-    function fmtNumber(n,dec=0){
-      try { return Number(n).toLocaleString(undefined,{maximumFractionDigits:dec,minimumFractionDigits:dec}); } catch { return String(n); }
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
     }
-    function fmtCurrency(n){
-      try { return Number(n).toLocaleString(undefined,{style:'currency',currency:'USD',maximumFractionDigits:0}); } catch { return '$'+n; }
+    function fmtNumber(n, dec=0) {
+      return Number(n).toLocaleString(undefined, {maximumFractionDigits: dec, minimumFractionDigits: dec});
+    }
+    function fmtShort(n) {
+      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(0) + 'k';
+      return fmtNumber(n, 0);
+    }
+    function fmtNumberShort(n) {
+      return fmtShort(n);
+    }
+    function fmtCurrencyShort(n) {
+      return '$' + fmtShort(n);
     }
     function buildNerdio(){
       const a = document.getElementById('poolA');
@@ -702,14 +666,9 @@
       root.querySelectorAll('[data-action="tab"]').forEach(b=>b.addEventListener('click',e=>{ STATE.tab=e.currentTarget.getAttribute('data-id'); render(); }));
       root.querySelector('[data-action="toggle-labels-recast"]')?.addEventListener('click',()=>{ STATE.showLabelsRecast=!STATE.showLabelsRecast; render(); });
       root.querySelector('[data-action="toggle-labels-nerdio"]')?.addEventListener('click',()=>{ STATE.showLabelsNerdio=!STATE.showLabelsNerdio; render(); });
-      root.querySelectorAll('[data-action="range"]').forEach(r=>r.addEventListener('input',e=>{
-        const key=e.currentTarget.getAttribute('data-key'); const v=Number(e.target.value)||0; STATE.inputs[key]=v; render();
-      }));
       root.querySelectorAll('[data-action="number"]').forEach(n=>n.addEventListener('input',e=>{
-        const key=e.currentTarget.getAttribute('data-key'); const v=Number(e.target.value); STATE.inputs[key]=Number.isFinite(v)?v:STATE.inputs[key];
-        render();
+        const key=e.currentTarget.getAttribute('data-key'); const v=Number(e.target.value); if(isFinite(v)) STATE.inputs[key]=v; saveState(); render();
       }));
-      root.querySelectorAll('[data-action="roi-mode"]').forEach(b=>b.addEventListener('click',e=>{ STATE.roiMode=e.currentTarget.getAttribute('data-id'); render(); }));
       root.querySelector('[data-action="copy"]')?.addEventListener('click', async ()=>{
         const calc = computeROI();
         try { await navigator.clipboard.writeText(calc.summary); } catch {
@@ -717,6 +676,16 @@
         }
         STATE.copied=true; render(); setTimeout(()=>{ STATE.copied=false; render(); }, 1200);
       });
+      root.querySelector('[data-action="toggle-advanced"]')?.addEventListener('click', () => { STATE.advancedOpen = !STATE.advancedOpen; render(); });
+      root.querySelectorAll('[data-action="preset"]').forEach(b=>b.addEventListener('click',e=>{
+        const preset = e.currentTarget.getAttribute('data-preset');
+        let vals;
+        if(preset === 'conservative') vals = {adminHoursPer100PerMonth:40, endUserMinsPerUserPerMonth:3, azureReductionPct:10};
+        else if(preset === 'benchmark') vals = {adminHoursPer100PerMonth:60, endUserMinsPerUserPerMonth:5, azureReductionPct:20};
+        else if(preset === 'aggressive') vals = {adminHoursPer100PerMonth:70, endUserMinsPerUserPerMonth:8, azureReductionPct:25};
+        if(vals) { Object.assign(STATE.inputs, vals); saveState(); render(); }
+      }));
+      root.querySelector('[data-action="reset-benchmarks"]')?.addEventListener('click', () => { STATE.inputs = { ...DEFAULT_INPUTS }; saveState(); render(); });
       root.querySelector('[data-action="start"]')?.addEventListener('click', startAll);
       root.querySelector('[data-action="reset"]')?.addEventListener('click', resetAll);
     }
@@ -789,7 +758,7 @@
       buildNerdio();
       buildRecast();
     }
-    document.addEventListener('DOMContentLoaded', render);
+    document.addEventListener('DOMContentLoaded', () => { loadState(); render(); });
   </script>
 </body>
 </html>
