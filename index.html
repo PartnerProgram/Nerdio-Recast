@@ -302,7 +302,7 @@
                   <div class="text-xs text-secondary-text">Windows 365</div>
                 </div>
                 <div class="mt-2 grid grid-cols-6 gap-2" id="poolA"></div>
-                <div class="mt-2 h-2 rounded-full overflow-hidden bg-gray-100"><div class="bar h-full bg-gradient-to-r from-nerdio-from via-nerdio-via to-nerdio-to scale-x-0 origin-left" style="--d:0.2s"></div></div>
+                <div class="mt-2 h-2 rounded-full overflow-hidden bg-gray-100"><div class="bar h-full bg-gradient-to-r from-nerdio-from via-nerdio-via to-nerdio-to scale-x-0 origin-left [animation-delay:var(--d)]" style="--d:0.2s"></div></div>
               </div>
               <div class="rounded-xl border border-border p-3">
                 <div class="flex items-center justify-between">
@@ -310,7 +310,7 @@
                   <div class="text-xs text-secondary-text">Autoscale</div>
                 </div>
                 <div class="mt-2 grid grid-cols-6 gap-2" id="poolB"></div>
-                <div class="mt-2 h-2 rounded-full overflow-hidden bg-gray-100"><div class="bar h-full bg-gradient-to-r from-nerdio-from via-nerdio-via to-nerdio-to scale-x-0 origin-left" style="--d:0.5s"></div></div>
+                <div class="mt-2 h-2 rounded-full overflow-hidden bg-gray-100"><div class="bar h-full bg-gradient-to-r from-nerdio-from via-nerdio-via to-nerdio-to scale-x-0 origin-left [animation-delay:var(--d)]" style="--d:0.5s"></div></div>
               </div>
               <div class="rounded-xl border border-border p-3">
                 <div class="text-sm font-medium">Policy via Intune</div>
@@ -318,11 +318,11 @@
               </div>
               <div class="rounded-xl border border-border p-3">
                 <div class="flex items-center gap-2 text-sm"><i data-lucide="chart-no-axes-combined" class="w-4 h-4 text-accent" aria-hidden="true"></i><span>Insights</span></div>
-                <div class="mt-2 h-2 rounded-full overflow-hidden bg-gray-100"><div class="bar h-full bg-gradient-to-r from-recast-from via-recast-via to-recast-to scale-x-0 origin-left" style="--d:0.9s"></div></div>
+                <div class="mt-2 h-2 rounded-full overflow-hidden bg-gray-100"><div class="bar h-full bg-gradient-to-r from-recast-from via-recast-via to-recast-to scale-x-0 origin-left [animation-delay:var(--d)]" style="--d:0.9s"></div></div>
               </div>
               <div class="rounded-xl border border-border p-3">
                 <div class="flex items-center gap-2 text-sm"><i data-lucide="user-check" class="w-4 h-4 text-accent" aria-hidden="true"></i><span>Identity-driven Workspace</span></div>
-                <div class="mt-2 user-beam h-[0.38rem] rounded-[0.38rem] bg-gradient-to-r from-nerdio-from via-nerdio-via to-nerdio-to scale-x-0 origin-left" style="--d:1.2s"></div>
+                <div class="mt-2 user-beam h-[0.38rem] rounded-[0.38rem] bg-gradient-to-r from-nerdio-from via-nerdio-via to-nerdio-to scale-x-0 origin-left [animation-delay:var(--d)]" style="--d:1.2s"></div>
                 <div class="mt-2 text-xs text-secondary-text">Desktop is ready and right-sized before apps arrive.</div>
               </div>
             </div>
@@ -359,7 +359,7 @@
                 <div class="bg-bg-card rounded-lg border border-border p-2">
                   <div class="text-xs text-secondary-text">${t}</div>
                   <div id="flowConn${'ABC'[i]}" class="mt-1 grid grid-cols-10 gap-1.5"></div>
-                  <div class="flow-bar mt-1 h-[0.22rem] rounded-[0.25rem] bg-gradient-to-r from-recast-from via-recast-via to-recast-to scale-x-0 origin-left" style="--d:${0.55 + 0.12*i}s"></div>
+                  <div class="flow-bar mt-1 h-[0.22rem] rounded-[0.25rem] bg-gradient-to-r from-recast-from via-recast-via to-recast-to scale-x-0 origin-left [animation-delay:var(--d)]" style="--d:${0.55 + 0.12*i}s"></div>
                 </div>
               `).join('')}
             </div>
@@ -368,7 +368,7 @@
                 <div class="bg-bg-card rounded-lg border border-border p-2">
                   <div class="text-xs text-secondary-text">${t}</div>
                   <div id="flowGrp${'ABC'[i]}" class="mt-1 grid grid-cols-8 gap-1.5"></div>
-                  <div class="bolt-line mx-auto mt-1 w-[0.22rem] h-16 rounded-[0.25rem] bg-gradient-to-b from-recast-from via-white to-recast-to scale-y-0 origin-top" style="--d:${1 + 0.15*i}s"></div>
+                  <div class="bolt-line mx-auto mt-1 w-[0.22rem] h-16 rounded-[0.25rem] bg-gradient-to-b from-recast-from via-white to-recast-to scale-y-0 origin-top [animation-delay:var(--d)]" style="--d:${1 + 0.15*i}s"></div>
                 </div>
               `).join('')}
             </div>
@@ -390,10 +390,10 @@
                     <div class="text-secondary-text">Apps on demand — no waiting, no tickets.</div>
                   </div>
                 </div>
-                <div class="user-beam mt-3 h-[0.38rem] rounded-[0.38rem] bg-gradient-to-r from-recast-from via-recast-via to-recast-to scale-x-0 origin-left" style="--d:2.1s"></div>
+                <div class="user-beam mt-3 h-[0.38rem] rounded-[0.38rem] bg-gradient-to-r from-recast-from via-recast-via to-recast-to scale-x-0 origin-left [animation-delay:var(--d)]" style="--d:2.1s"></div>
                 <div class="relative mt-2 rounded-lg border border-border bg-gray-50 p-4">
                   <i data-lucide="laptop" class="h-5 w-5 opacity-80" aria-hidden="true"></i>
-                  <div id="endUserBadge" class="badge absolute right-2 top-2 w-[1.15rem] h-[1.15rem] rounded-[0.3rem] opacity-0 translate-y-[-6px] scale-90 bg-brand-orange text-white grid place-items-center font-bold" style="--d:2.4s">!</div>
+                  <div id="endUserBadge" class="badge absolute right-2 top-2 w-[1.15rem] h-[1.15rem] rounded-[0.3rem] opacity-0 translate-y-[-6px] scale-90 bg-brand-orange text-white grid place-items-center font-bold [animation-delay:var(--d)]" style="--d:2.4s">!</div>
                   <div class="mt-1 text-[11px] text-secondary-text">Workspace launches the correct app instantly</div>
                 </div>
               </div>
@@ -413,7 +413,6 @@
               <h2 class="text-2xl md:text-3xl font-extrabold text-primary-text">ROI — Nerdio + Recast (Better Together)</h2>
               <p class="mt-1 text-secondary-text">From desktop orchestration to application governance — one flow, measurable return.</p>
             </div>
-
             <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-6">
               <article class="bg-white rounded-xl border border-border p-4 shadow-sm">
                 <div class="flex items-center gap-2">
@@ -425,7 +424,6 @@
                   <p class="mt-1 text-sm text-secondary-text">Calculated as (Total savings − subscription) ÷ subscription</p>
                 </div>
               </article>
-
               <article class="bg-white rounded-xl border border-border p-4 shadow-sm">
                 <div class="flex items-center gap-2">
                   <i data-lucide="banknote" class="w-5 h-5 text-accent" aria-hidden="true"></i>
@@ -436,7 +434,6 @@
                   <p class="mt-1 text-sm text-secondary-text">Labor + Azure autoscale savings</p>
                 </div>
               </article>
-
               <article class="bg-white rounded-xl border border-border p-4 shadow-sm">
                 <div class="flex items-center gap-2">
                   <i data-lucide="timer" class="w-5 h-5 text-accent" aria-hidden="true"></i>
@@ -448,7 +445,6 @@
                 </div>
               </article>
             </div>
-
             <div class="mt-6 pt-6 border-t border-border">
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <article class="bg-white rounded-xl border border-border p-4 shadow-sm">
@@ -461,7 +457,6 @@
                     <p class="text-sm text-secondary-text">(≈ ${Math.round(calc.equivalentFTEs)} FTEs)</p>
                   </div>
                 </article>
-
                 <article class="bg-white rounded-xl border border-border p-4 shadow-sm">
                   <div class="flex items-center gap-2">
                     <i data-lucide="trending-down" class="w-5 h-5 text-accent" aria-hidden="true"></i>
@@ -472,7 +467,6 @@
                     <p class="text-sm text-secondary-text">Azure savings / yr</p>
                   </div>
                 </article>
-
                 <article class="bg-white rounded-xl border border-border p-4 shadow-sm">
                   <div class="flex items-center gap-2">
                     <i data-lucide="shield-check" class="w-5 h-5 text-accent" aria-hidden="true"></i>
@@ -485,7 +479,6 @@
                 </article>
               </div>
             </div>
-
             <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
               <section aria-label="Required Inputs" class="rounded-xl border border-border p-4 bg-white">
                 <h3 class="font-semibold flex items-center gap-2"><i data-lucide="sliders-horizontal" class="w-5 h-5 text-accent" aria-hidden="true"></i>Required Assumptions</h3>
@@ -497,7 +490,6 @@
                   ${moneyInput('Combined subscription / year', 'subscriptionAnnual', STATE.inputs.subscriptionAnnual, 100000, 2000000, 10000, 'Nerdio + Recast combined (editable)')}
                 </div>
               </section>
-
               <section aria-label="Advanced Assumptions" class="rounded-xl border border-border p-4 bg-gray-50">
                 <button type="button" class="w-full flex items-center justify-between rounded-lg border border-border bg-bg-card px-4 py-2 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="toggle-advanced">
                   Advanced Assumptions
@@ -516,7 +508,6 @@
                 </div>
               </section>
             </div>
-
             <div class="mt-6 rounded-lg border border-border bg-gray-50 p-4">
               <details>
                 <summary class="cursor-pointer font-semibold text-sm select-none">Methodology</summary>
@@ -524,7 +515,6 @@
                 <button type="button" class="mt-3 rounded-full border border-border bg-bg-card px-4 py-2 text-sm" data-action="reset-benchmarks">Reset to Benchmarks</button>
               </details>
             </div>
-
             <button type="button" class="mt-4 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white inline-flex items-center gap-2" data-action="copy">
               <i data-lucide="clipboard" class="w-4 h-4" aria-hidden="true"></i>${STATE.copied ? 'Copied!' : 'Copy Summary'}
             </button>
@@ -637,13 +627,13 @@ Assumptions: ${fmtNumberShort(i.users)} users, ${i.apps} apps, $${i.costPerHour}
       const p = document.getElementById('policyDots');
       if(a){ a.innerHTML=''; for(let i=0;i<12;i++){ a.appendChild(poolVM(i,0.15+i*0.05,'nerdio')); } }
       if(b){ b.innerHTML=''; for(let i=0;i<12;i++){ b.appendChild(poolVM(i,0.4+i*0.05,'nerdio')); } }
-      if(p){ p.innerHTML=''; for(let i=0;i<24;i++){ const d=document.createElement('div'); d.className='policy-dot w-2 h-2 rounded-full bg-grey-tile opacity-90'; d.style.setProperty('--d', (0.8 + i*0.05)+'s'); p.appendChild(d); } }
+      if(p){ p.innerHTML=''; for(let i=0;i<24;i++){ const d=document.createElement('div'); d.className='policy-dot w-2 h-2 rounded-full bg-grey-tile opacity-90 [animation-delay:var(--d)]'; d.style.setProperty('--d', (0.8 + i*0.05)+'s'); p.appendChild(d); } }
     }
     function poolVM(i,delay,tone){
       const d=document.createElement('div');
       d.className='h-6 rounded-md bg-gray-100 relative border border-border';
       const bar=document.createElement('div');
-      bar.className='bar absolute left-0 top-0 h-full w-full bg-gradient-to-r from-nerdio-from via-nerdio-via to-nerdio-to scale-x-0 origin-left';
+      bar.className='bar absolute left-0 top-0 h-full w-full bg-gradient-to-r from-nerdio-from via-nerdio-via to-nerdio-to scale-x-0 origin-left [animation-delay:var(--d)]';
       bar.style.setProperty('--d', delay+'s');
       d.appendChild(bar);
       if(STATE.showLabelsNerdio){
@@ -662,13 +652,13 @@ Assumptions: ${fmtNumberShort(i.users)} users, ${i.apps} apps, $${i.costPerHour}
         section.items.forEach((itm,idx)=>{
           const wrap=document.createElement('div');
           wrap.className='flex items-center gap-1';
-          wrap.style.setProperty('--d',(base+idx*0.06).toFixed(2)+'s');
           const ring=document.createElement('div');
-          ring.className='logo-ring w-[2.1rem] h-[2.1rem] rounded-full grid place-items-center bg-bg-main ring-1 ring-inset ring-border';
+          ring.className='logo-ring w-[2.1rem] h-[2.1rem] rounded-full grid place-items-center bg-bg-main ring-1 ring-inset ring-border [animation-delay:var(--d)]';
           ring.innerHTML=itm.svg;
           ring.title=itm.name;
           ring.setAttribute('role','img');
           ring.setAttribute('aria-label',itm.name);
+          ring.style.setProperty('--d',(base+idx*0.06).toFixed(2)+'s');
           mount.appendChild(wrap);
           wrap.appendChild(ring);
           if(STATE.showLabelsRecast){
@@ -698,7 +688,7 @@ Assumptions: ${fmtNumberShort(i.users)} users, ${i.apps} apps, $${i.costPerHour}
       if(!container) return; container.innerHTML='';
       for(let i=0;i<count;i++){
         const d=document.createElement('div');
-        d.className='tile w-[0.45rem] h-[0.45rem] rounded bg-grey-tile opacity-90';
+        d.className='tile w-[0.45rem] h-[0.45rem] rounded bg-grey-tile opacity-90 [animation-delay:var(--d)]';
         d.style.setProperty('--d',(baseDelay+i*0.04).toFixed(2)+'s');
         container.appendChild(d);
       }
