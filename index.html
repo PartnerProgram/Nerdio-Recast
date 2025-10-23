@@ -93,6 +93,7 @@
       showLabelsNerdio: false,
       advancedOpen: false,
       copied: false,
+      activeModal: null,
       inputs: { ...DEFAULT_INPUTS }
     };
     function loadState() {
@@ -127,6 +128,13 @@
                 <button type="button" class="rounded-full border border-border bg-bg-card px-3 py-1.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="reset">Reset</button>
               </div>` : ''}
             </nav>
+            ${STATE.tab==='approach' ? `
+            <div class="mt-4 flex flex-wrap gap-3 justify-end">
+              ${modalBtn('better','Better Together')}
+              ${modalBtn('onboarding','Fast Onboarding')}
+              ${modalBtn('proven','Proven & Trusted')}
+            </div>
+            ` : ''}
           </div>
         </header>
         <main class="mx-auto max-w-6xl px-4 pb-16" role="main">
@@ -135,9 +143,71 @@
           ${STATE.tab==='outcomes'?renderOutcomes():''}
         </main>
       `;
+      if(STATE.activeModal){
+        root.innerHTML += renderModal(STATE.activeModal);
+      }
       if (window.lucide?.createIcons) { try { window.lucide.createIcons(); } catch{} }
       attachEvents();
       if (STATE.tab==='approach'){ buildNerdio(); buildRecast(); }
+    }
+    function modalBtn(id,label){
+      return `<button type="button" class="rounded-lg bg-bg-card border border-border shadow-sm px-4 py-2 text-sm font-medium text-primary-text hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="open-modal" data-id="${id}">${label}</button>`;
+    }
+    function renderModal(id){
+      let title = '';
+      let content = '';
+      if(id==='better'){
+        title = 'Better Together: Microsoft + Recast + Nerdio';
+        content = `
+          <p class="mt-2 text-sm text-secondary-text">Microsoft provides the trusted foundation — Intune and Azure handle security, device management, and compliance.</p>
+          <p class="mt-2 text-sm text-secondary-text">Recast adds the power layer — one workspace to package, deploy, update, and retire apps across Intune, SCCM, Citrix, Omnissa, and Azure.</p>
+          <ul class="mt-2 list-disc pl-5 text-sm text-secondary-text space-y-1">
+            <li>8,000+ pre-tested enterprise apps ready to go</li>
+            <li>Automated patching, validation, and compliance</li>
+            <li>Unified dashboard for full visibility</li>
+            <li>Policy-driven automation that cuts manual work by 60%+</li>
+            <li>End users get the right app instantly — no tickets, no waiting</li>
+          </ul>
+          <p class="mt-2 text-sm text-secondary-text">Configured once — delivered everywhere.</p>
+          <p class="mt-2 text-sm text-secondary-text">Nerdio completes the story — giving partners and customers the front-end workspace experience that brings Recast’s automation and Microsoft’s infrastructure together in a single, easy-to-use platform.</p>
+        `;
+      } else if(id==='onboarding'){
+        title = 'Fast, Guided Onboarding';
+        content = `
+          <ul class="mt-2 list-disc pl-5 text-sm text-secondary-text space-y-1">
+            <li>Standard rollout: 4–6 weeks (Kickoff → Implementation → UAT → Launch → Enablement)</li>
+            <li>Works with existing Intune/Azure setup — no new infrastructure</li>
+            <li>Guided setup with a Customer Success Manager</li>
+            <li>Only 1–2 IT engineers needed part-time</li>
+            <li>Includes training, certification, and success planning</li>
+          </ul>
+          <p class="mt-2 text-sm text-secondary-text">From first call to production in weeks, not months.</p>
+        `;
+      } else if(id==='proven'){
+        title = 'Proven and Trusted';
+        content = `
+          <ul class="mt-2 list-disc pl-5 text-sm text-secondary-text space-y-1">
+            <li>60M+ endpoints, 70K+ customers, 130+ countries</li>
+            <li>Trusted by global brands and public sector leaders</li>
+            <li>87 CSAT — highest in the industry</li>
+            <li>SOC 2 and ISO 27001 certified</li>
+          </ul>
+          <p class="mt-2 text-sm text-secondary-text">Trusted by organizations that can’t afford downtime.</p>
+        `;
+      }
+      return `
+        <div class="fixed inset-0 bg-black/30 flex items-center justify-center z-50" data-action="close-modal-bg">
+          <div class="bg-bg-card rounded-2xl shadow-xl p-6 max-w-md w-full mx-4" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start">
+              <div>
+                <h2 id="modal-title" class="text-lg font-bold">${title}</h2>
+                ${content}
+              </div>
+              <button type="button" class="text-secondary-text hover:text-primary-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="close-modal"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+          </div>
+        </div>
+      `;
     }
     function tabBtn(id,label,icon){
       const active=STATE.tab===id;
@@ -688,6 +758,10 @@ Assumptions: ${fmtNumberShort(i.users)} users, ${i.apps} apps, $${i.costPerHour}
       root.querySelector('[data-action="reset-benchmarks"]')?.addEventListener('click', () => { STATE.inputs = { ...DEFAULT_INPUTS }; saveState(); render(); });
       root.querySelector('[data-action="start"]')?.addEventListener('click', startAll);
       root.querySelector('[data-action="reset"]')?.addEventListener('click', resetAll);
+      root.querySelectorAll('[data-action="open-modal"]').forEach(b=>b.addEventListener('click',e=>{ STATE.activeModal=e.currentTarget.getAttribute('data-id'); render(); }));
+      root.querySelector('[data-action="close-modal-bg"]')?.addEventListener('click',e=>{ if(e.target===e.currentTarget){ STATE.activeModal=null; render(); } });
+      root.querySelector('[data-action="close-modal"]')?.addEventListener('click',()=>{ STATE.activeModal=null; render(); });
+      document.addEventListener('keydown', e=>{if(e.key==='Escape' && STATE.activeModal){ STATE.activeModal=null; render(); }});
     }
     const animations = [
       {sel: '.bar', anim: 'animate-bar-grow', initial: {transform: 'scaleX(0)'}},
