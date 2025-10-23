@@ -88,21 +88,38 @@
       azureReductionPct: 20
     };
     const DEFAULT_WHY_SECTIONS = {
-      change: [
-        "Modernize to Microsoft’s cloud workspace — unify desktop automation (Nerdio) and app lifecycle (Recast) so migration is predictable, not heroic.",
-        "Standardize app delivery — one catalog, one process, all users and devices.",
-        "Operate lean — fewer images, fewer manual approvals, measurable Azure efficiency."
-      ],
-      now: [
-        "Budget & risk windows are tight — automate Day-0/Day-2 ops; manual cycles won’t keep up.",
-        "Security & compliance won’t wait — patch cadence + governed access must be baked-in, not bolted-on.",
-        "Microsoft momentum — capitalize on license and infrastructure consolidation while talent and funding are aligned to cloud."
-      ],
-      better: [
-        "Complete the Microsoft workspace — Nerdio optimizes Azure/AVD; Recast governs applications and access in one flow.",
-        "Accelerate time-to-AVD — pre-curated apps, staged deployments, and self-service reduce migration lead time and ticket load.",
-        "Run with confidence — integrated patching + SSO keep apps compliant and users productive post-cutover."
-      ]
+      change: {
+        subtitle: 'Freedom from Vendor Lock-In',
+        intro: 'The old model is broken — and customers know it.\nCitrix and other legacy workspace vendors are exploiting dependency, not delivering innovation.',
+        bullets: [
+          'Escaping lock-in: Citrix is raising renewals 30%+ simply because they assume customers are trapped. Microsoft’s cloud workspace breaks that dependency with an open, identity-driven model that scales — not squeezes.',
+          'Modernize to Microsoft’s cloud workspace: Unify desktop automation (Nerdio) and app lifecycle (Recast) so migrations are predictable, not painful.',
+          'Standardize delivery: One catalog, one process, all users, all devices.',
+          'Operate lean: Fewer images, fewer manual approvals, measurable Azure efficiency.'
+        ],
+        conclusion: 'The change isn’t just about technology — it’s about regaining control from platforms that have stopped earning their keep.'
+      },
+      now: {
+        subtitle: 'Don’t Let Legacy Vendors Tax Your Future',
+        intro: 'The longer you wait, the more you’ll pay — in both dollars and flexibility.',
+        bullets: [
+          'Renewal shock is real: Citrix and others are inflating renewals precisely because they believe customers are too entangled to leave.',
+          'Budget and risk windows are tight: Manual operations and outdated contracts can’t keep up.',
+          'Security and compliance won’t wait: Integrated patch cadence and governed access must be built-in, not bolted on.',
+          'Microsoft momentum: Capitalize on license and infrastructure consolidation now while cloud incentives are high and funding is available.'
+        ],
+        conclusion: 'Every renewal you delay is another year paying a “legacy tax.” Every modernization step you take now compounds future savings.'
+      },
+      better: {
+        subtitle: 'Microsoft + Nerdio + Recast',
+        intro: 'You’re not just replacing Citrix; you’re upgrading to a modern, automated model.',
+        bullets: [
+          'Complete the Microsoft workspace: Nerdio optimizes Azure/AVD; Recast governs applications and access in one flow.',
+          'Accelerate time-to-AVD: Pre-curated apps, staged deployment, and self-service slash migration lead time and ticket load.',
+          'Run with confidence: Integrated patching and SSO keep apps compliant and users productive post-cutover.'
+        ],
+        conclusion: 'Together, Microsoft, Nerdio, and Recast make modern workspace management fast, flexible, and future-proof — without the legacy tax.'
+      }
     };
     const STATE = {
       tab: 'current',
@@ -214,11 +231,20 @@
             <button type="button" class="text-sm text-accent underline" data-action="toggle-all-accordions">Expand All</button>
           </div>
           <div class="space-y-3">
-            ${accordion('why-change', 'Why Change', 'circle-help', `<ul class="mt-2 list-disc pl-5 text-sm text-secondary-text">${STATE.whySections.change.map(li => `<li>${li}</li>`).join('')}</ul>`)}
-            ${accordion('why-now', 'Why Now', 'alarm-clock', `<ul class="mt-2 list-disc pl-5 text-sm text-secondary-text">${STATE.whySections.now.map(li => `<li>${li}</li>`).join('')}</ul>`)}
-            ${accordion('why-better', 'Why Better Together', 'sparkles', `<ol class="mt-2 list-decimal pl-5 text-sm text-secondary-text space-y-2">${STATE.whySections.better.map(li => `<li>${li}</li>`).join('')}</ol>`)}
+            ${accordion('why-change', 'Why Change', 'circle-help', renderWhyContent('change'))}
+            ${accordion('why-now', 'Why Now', 'alarm-clock', renderWhyContent('now'))}
+            ${accordion('why-better', 'Why Better Together', 'sparkles', renderWhyContent('better'))}
           </div>
         </section>
+      `;
+    }
+    function renderWhyContent(key) {
+      const sec = STATE.whySections[key];
+      return `
+        <h4 class="text-base font-semibold mt-2">${sec.subtitle}</h4>
+        <p class="mt-2 text-sm text-secondary-text">${sec.intro.replace(/\n/g, '<br>')}</p>
+        <ul class="mt-2 list-disc pl-5 text-sm text-secondary-text">${sec.bullets.map(li => `<li>${li}</li>`).join('')}</ul>
+        <p class="mt-2 text-sm text-secondary-text">${sec.conclusion}</p>
       `;
     }
     function accordion(id, title, icon, body) {
@@ -767,22 +793,67 @@ Assumptions: ${fmtNumberShort(i.users)} users, ${i.apps} apps, $${i.costPerHour}
         <div class="fixed inset-0 bg-black/30 flex items-center justify-center z-50" data-action="close-modal-bg">
           <div class="bg-bg-card rounded-2xl shadow-xl p-6 max-w-xl w-full mx-4 scale-95 opacity-0 transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]" data-modal-content>
             <div class="flex justify-between items-start">
-              <h2 class="text-lg font-bold">*</h2>
+              <h2 class="text-lg font-bold">Edit Why Sections</h2>
               <button type="button" class="text-secondary-text hover:text-primary-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="close-modal"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="mt-4 space-y-4">
-              <label class="block">
-                <span class="font-medium">Why Change (one bullet per line)</span>
-                <textarea id="why-change-text" rows="4" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.change.join('\n')}</textarea>
-              </label>
-              <label class="block">
-                <span class="font-medium">Why Now (one bullet per line)</span>
-                <textarea id="why-now-text" rows="4" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.now.join('\n')}</textarea>
-              </label>
-              <label class="block">
-                <span class="font-medium">Why Better Together (one bullet per line)</span>
-                <textarea id="why-better-text" rows="4" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.better.join('\n')}</textarea>
-              </label>
+            <div class="mt-4 space-y-6">
+              <div>
+                <h3 class="font-medium">Why Change</h3>
+                <label class="block mt-2">
+                  <span class="text-sm text-secondary-text">Subtitle</span>
+                  <input id="why-change-subtitle" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent" value="${STATE.whySections.change.subtitle}">
+                </label>
+                <label class="block mt-2">
+                  <span class="text-sm text-secondary-text">Intro (use \\n for line breaks)</span>
+                  <textarea id="why-change-intro" rows="3" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.change.intro}</textarea>
+                </label>
+                <label class="block mt-2">
+                  <span class="text-sm text-secondary-text">Bullets (one per line)</span>
+                  <textarea id="why-change-bullets" rows="5" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.change.bullets.join('\n')}</textarea>
+                </label>
+                <label class="block mt-2">
+                  <span class="text-sm text-secondary-text">Conclusion</span>
+                  <textarea id="why-change-conclusion" rows="2" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.change.conclusion}</textarea>
+                </label>
+              </div>
+              <div>
+                <h3 class="font-medium">Why Now</h3>
+                <label class="block mt-2">
+                  <span class="text-sm text-secondary-text">Subtitle</span>
+                  <input id="why-now-subtitle" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent" value="${STATE.whySections.now.subtitle}">
+                </label>
+                <label class="block mt-2">
+                  <span class="text-sm text-secondary-text">Intro (use \\n for line breaks)</span>
+                  <textarea id="why-now-intro" rows="3" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.now.intro}</textarea>
+                </label>
+                <label class="block mt-2">
+                  <span class="text-sm text-secondary-text">Bullets (one per line)</span>
+                  <textarea id="why-now-bullets" rows="5" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.now.bullets.join('\n')}</textarea>
+                </label>
+                <label class="block mt-2">
+                  <span class="text-sm text-secondary-text">Conclusion</span>
+                  <textarea id="why-now-conclusion" rows="2" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.now.conclusion}</textarea>
+                </label>
+              </div>
+              <div>
+                <h3 class="font-medium">Why Better Together</h3>
+                <label class="block mt-2">
+                  <span class="text-sm text-secondary-text">Subtitle</span>
+                  <input id="why-better-subtitle" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent" value="${STATE.whySections.better.subtitle}">
+                </label>
+                <label class="block mt-2">
+                  <span class="text-sm text-secondary-text">Intro (use \\n for line breaks)</span>
+                  <textarea id="why-better-intro" rows="3" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.better.intro}</textarea>
+                </label>
+                <label class="block mt-2">
+                  <span class="text-sm text-secondary-text">Bullets (one per line)</span>
+                  <textarea id="why-better-bullets" rows="5" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.better.bullets.join('\n')}</textarea>
+                </label>
+                <label class="block mt-2">
+                  <span class="text-sm text-secondary-text">Conclusion</span>
+                  <textarea id="why-better-conclusion" rows="2" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.better.conclusion}</textarea>
+                </label>
+              </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
               <button type="button" class="rounded-full border border-border bg-bg-card px-4 py-2 text-sm" data-action="close-modal">Cancel</button>
@@ -824,9 +895,18 @@ Assumptions: ${fmtNumberShort(i.users)} users, ${i.apps} apps, $${i.costPerHour}
       root.querySelector('[data-action="close-modal-bg"]')?.addEventListener('click',e=>{ if(e.target===e.currentTarget){ STATE.activeModal=null; render(); } });
       root.querySelectorAll('[data-action="close-modal"]').forEach(b=>b.addEventListener('click',()=>{ STATE.activeModal=null; render(); }));
       root.querySelector('[data-action="save-why"]')?.addEventListener('click', () => {
-        STATE.whySections.change = document.getElementById('why-change-text').value.split('\n').map(s => s.trim()).filter(Boolean);
-        STATE.whySections.now = document.getElementById('why-now-text').value.split('\n').map(s => s.trim()).filter(Boolean);
-        STATE.whySections.better = document.getElementById('why-better-text').value.split('\n').map(s => s.trim()).filter(Boolean);
+        STATE.whySections.change.subtitle = document.getElementById('why-change-subtitle').value.trim();
+        STATE.whySections.change.intro = document.getElementById('why-change-intro').value.trim();
+        STATE.whySections.change.bullets = document.getElementById('why-change-bullets').value.split('\n').map(s => s.trim()).filter(Boolean);
+        STATE.whySections.change.conclusion = document.getElementById('why-change-conclusion').value.trim();
+        STATE.whySections.now.subtitle = document.getElementById('why-now-subtitle').value.trim();
+        STATE.whySections.now.intro = document.getElementById('why-now-intro').value.trim();
+        STATE.whySections.now.bullets = document.getElementById('why-now-bullets').value.split('\n').map(s => s.trim()).filter(Boolean);
+        STATE.whySections.now.conclusion = document.getElementById('why-now-conclusion').value.trim();
+        STATE.whySections.better.subtitle = document.getElementById('why-better-subtitle').value.trim();
+        STATE.whySections.better.intro = document.getElementById('why-better-intro').value.trim();
+        STATE.whySections.better.bullets = document.getElementById('why-better-bullets').value.split('\n').map(s => s.trim()).filter(Boolean);
+        STATE.whySections.better.conclusion = document.getElementById('why-better-conclusion').value.trim();
         saveWhyToStorage();
         STATE.activeModal = null;
         render();
@@ -861,6 +941,14 @@ Assumptions: ${fmtNumberShort(i.users)} users, ${i.apps} apps, $${i.costPerHour}
       const header = e.currentTarget;
       const content = header.nextElementSibling;
       const isOpen = header.getAttribute('aria-expanded') === 'true';
+      document.querySelectorAll('.accordion-header').forEach(h => {
+        if (h !== header) {
+          h.setAttribute('aria-expanded', 'false');
+          h.nextElementSibling.style.maxHeight = '0px';
+          h.querySelector('.chevron').classList.remove('rotate-180');
+          h.parentElement.classList.remove('border-l-4', 'border-accent');
+        }
+      });
       header.setAttribute('aria-expanded', `${!isOpen}`);
       const chevron = header.querySelector('.chevron');
       if (isOpen) {
@@ -871,6 +959,7 @@ Assumptions: ${fmtNumberShort(i.users)} users, ${i.apps} apps, $${i.costPerHour}
         chevron.classList.add('rotate-180');
         content.style.maxHeight = `${content.scrollHeight}px`;
         header.parentElement.classList.add('border-l-4', 'border-accent');
+        header.scrollIntoView({behavior: 'smooth', block: 'nearest'});
       }
     }
     function accordionKeydown(e) {
@@ -883,6 +972,9 @@ Assumptions: ${fmtNumberShort(i.users)} users, ${i.apps} apps, $${i.costPerHour}
         else if (e.key === 'Home') idx = 0;
         else if (e.key === 'End') idx = headers.length - 1;
         headers[idx].focus();
+      } else if (['Enter', ' '].includes(e.key)) {
+        e.preventDefault();
+        toggleAccordion(e);
       }
     }
     const animations = [
