@@ -87,6 +87,23 @@
       endUserMinsPerUserPerMonth: 5,
       azureReductionPct: 20
     };
+    const DEFAULT_WHY_SECTIONS = {
+      change: [
+        "Modernize to Microsoft’s cloud workspace — unify desktop automation (Nerdio) and app lifecycle (Recast) so migration is predictable, not heroic.",
+        "Standardize app delivery — one catalog, one process, all users and devices.",
+        "Operate lean — fewer images, fewer manual approvals, measurable Azure efficiency."
+      ],
+      now: [
+        "Budget & risk windows are tight — automate Day-0/Day-2 ops; manual cycles won’t keep up.",
+        "Security & compliance won’t wait — patch cadence + governed access must be baked-in, not bolted-on.",
+        "Microsoft momentum — capitalize on license and infrastructure consolidation while talent and funding are aligned to cloud."
+      ],
+      better: [
+        "Complete the Microsoft workspace — Nerdio optimizes Azure/AVD; Recast governs applications and access in one flow.",
+        "Accelerate time-to-AVD — pre-curated apps, staged deployments, and self-service reduce migration lead time and ticket load.",
+        "Run with confidence — integrated patching + SSO keep apps compliant and users productive post-cutover."
+      ]
+    };
     const STATE = {
       tab: 'current',
       showLabelsRecast: false,
@@ -94,6 +111,7 @@
       advancedOpen: false,
       copied: false,
       activeModal: null,
+      whySections: null,
       inputs: { ...DEFAULT_INPUTS }
     };
     function loadState() {
@@ -101,9 +119,18 @@
       if (saved) {
         STATE.inputs = { ...DEFAULT_INPUTS, ...JSON.parse(saved) };
       }
+      const savedWhy = localStorage.getItem('whySections');
+      if (savedWhy) {
+        STATE.whySections = JSON.parse(savedWhy);
+      } else {
+        STATE.whySections = { ...DEFAULT_WHY_SECTIONS };
+      }
     }
     function saveState() {
       localStorage.setItem('roiInputs', JSON.stringify(STATE.inputs));
+    }
+    function saveWhyToStorage() {
+      localStorage.setItem('whySections', JSON.stringify(STATE.whySections));
     }
     function render() {
       const root = document.getElementById('app');
@@ -127,6 +154,10 @@
                 <button type="button" class="rounded-full bg-accent px-3 py-1.5 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="start">Start</button>
                 <button type="button" class="rounded-full border border-border bg-bg-card px-3 py-1.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="reset">Reset</button>
               </div>` : ''}
+              ${STATE.tab==='current' ? `
+              <div class="ml-auto flex items-center gap-2">
+                <button type="button" class="rounded-full border border-border bg-bg-card px-3 py-1.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="open-modal" data-id="edit-why">Edit Why Sections</button>
+              </div>` : ''}
             </nav>
             ${STATE.tab==='approach' ? `
             <div class="mt-4 flex flex-wrap gap-3 justify-end">
@@ -144,70 +175,13 @@
         </main>
       `;
       if(STATE.activeModal){
-        root.innerHTML += renderModal(STATE.activeModal);
+        root.innerHTML += STATE.activeModal === 'edit-why' ? renderEditWhyModal() : renderModal(STATE.activeModal);
       }
       if (window.lucide?.createIcons) { try { window.lucide.createIcons(); } catch{} }
       attachEvents();
       if (STATE.tab==='approach'){ buildNerdio(); buildRecast(); }
-    }
-    function modalBtn(id,label){
-      return `<button type="button" class="rounded-lg bg-bg-card border border-border shadow-sm px-4 py-2 text-sm font-medium text-primary-text hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="open-modal" data-id="${id}">${label}</button>`;
-    }
-    function renderModal(id){
-      let title = '';
-      let content = '';
-      if(id==='better'){
-        title = 'Better Together: Microsoft + Recast + Nerdio';
-        content = `
-          <p class="mt-2 text-sm text-secondary-text">Microsoft provides the trusted foundation — Intune and Azure handle security, device management, and compliance.</p>
-          <p class="mt-2 text-sm text-secondary-text">Recast adds the power layer — one workspace to package, deploy, update, and retire apps across Intune, SCCM, Citrix, Omnissa, and Azure.</p>
-          <ul class="mt-2 list-disc pl-5 text-sm text-secondary-text space-y-1">
-            <li>8,000+ pre-tested enterprise apps ready to go</li>
-            <li>Automated patching, validation, and compliance</li>
-            <li>Unified dashboard for full visibility</li>
-            <li>Policy-driven automation that cuts manual work by 60%+</li>
-            <li>End users get the right app instantly — no tickets, no waiting</li>
-          </ul>
-          <p class="mt-2 text-sm text-secondary-text">Configured once — delivered everywhere.</p>
-          <p class="mt-2 text-sm text-secondary-text">Nerdio completes the story — giving partners and customers the front-end workspace experience that brings Recast’s automation and Microsoft’s infrastructure together in a single, easy-to-use platform.</p>
-        `;
-      } else if(id==='onboarding'){
-        title = 'Fast, Guided Onboarding';
-        content = `
-          <ul class="mt-2 list-disc pl-5 text-sm text-secondary-text space-y-1">
-            <li>Standard rollout: 4–6 weeks (Kickoff → Implementation → UAT → Launch → Enablement)</li>
-            <li>Works with existing Intune/Azure setup — no new infrastructure</li>
-            <li>Guided setup with a Customer Success Manager</li>
-            <li>Only 1–2 IT engineers needed part-time</li>
-            <li>Includes training, certification, and success planning</li>
-          </ul>
-          <p class="mt-2 text-sm text-secondary-text">From first call to production in weeks, not months.</p>
-        `;
-      } else if(id==='proven'){
-        title = 'Proven and Trusted';
-        content = `
-          <ul class="mt-2 list-disc pl-5 text-sm text-secondary-text space-y-1">
-            <li>60M+ endpoints, 70K+ customers, 130+ countries</li>
-            <li>Trusted by global brands and public sector leaders</li>
-            <li>87 CSAT — highest in the industry</li>
-            <li>SOC 2 and ISO 27001 certified</li>
-          </ul>
-          <p class="mt-2 text-sm text-secondary-text">Trusted by organizations that can’t afford downtime.</p>
-        `;
-      }
-      return `
-        <div class="fixed inset-0 bg-black/30 flex items-center justify-center z-50" data-action="close-modal-bg">
-          <div class="bg-bg-card rounded-2xl shadow-xl p-6 max-w-md w-full mx-4" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-start">
-              <div>
-                <h2 id="modal-title" class="text-lg font-bold">${title}</h2>
-                ${content}
-              </div>
-              <button type="button" class="text-secondary-text hover:text-primary-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="close-modal"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-          </div>
-        </div>
-      `;
+      const modalContent = document.querySelector('[data-modal-content]');
+      if (modalContent) setTimeout(() => modalContent.classList.add('scale-100', 'opacity-100'), 0);
     }
     function tabBtn(id,label,icon){
       const active=STATE.tab===id;
@@ -236,38 +210,36 @@
             ${problemTile('Day-0 to Day-2 Compliance Pressure','shield-alert','Integrated release & patch management plus SSO (Access Manager) keep apps current and access contextual as users shift from legacy brokers to AVD.')}
             ${problemTile('Azure Cost Confidence','gauge','Autoscale, right-sizing, and image hygiene reduce idle capacity; application-level control prevents unnecessary sessions and duplicate images that inflate spend (Nerdio’s orchestration + Recast’s app governance).')}
           </div>
-          <div class="grid grid-cols-1 gap-3 lg:grid-cols-3">
-            <article class="bg-bg-card rounded-xl border border-border p-4">
-              <div class="flex items-center gap-2"><i data-lucide="circle-help" class="h-5 w-5 text-accent" aria-hidden="true"></i><h3 class="font-semibold">Why Change</h3></div>
-              <ul class="mt-2 list-disc pl-5 text-sm text-secondary-text">
-                <li>Modernize to Microsoft’s cloud workspace — unify desktop automation (Nerdio) and app lifecycle (Recast) so migration is predictable, not heroic.</li>
-                <li>Standardize app delivery — one catalog, one process, all users and devices.</li>
-                <li>Operate lean — fewer images, fewer manual approvals, measurable Azure efficiency.</li>
-              </ul>
-            </article>
-            <article class="bg-bg-card rounded-xl border border-border p-4">
-              <div class="flex items-center gap-2"><i data-lucide="alarm-clock" class="h-5 w-5 text-accent" aria-hidden="true"></i><h3 class="font-semibold">Why Now</h3></div>
-              <ul class="mt-2 list-disc pl-5 text-sm text-secondary-text">
-                <li>Budget & risk windows are tight — automate Day-0/Day-2 ops; manual cycles won’t keep up.</li>
-                <li>Security & compliance won’t wait — patch cadence + governed access must be baked-in, not bolted-on.</li>
-                <li>Microsoft momentum — capitalize on license and infrastructure consolidation while talent and funding are aligned to cloud.</li>
-              </ul>
-            </article>
-            <article class="bg-bg-card rounded-xl border border-border p-4">
-              <div class="flex items-center gap-2"><i data-lucide="sparkles" class="h-5 w-5 text-accent" aria-hidden="true"></i><h3 class="font-semibold">Why Better Together</h3></div>
-              <ol class="mt-2 list-decimal pl-5 text-sm text-secondary-text space-y-2">
-                <li>Complete the Microsoft workspace — Nerdio optimizes Azure/AVD; Recast governs applications and access in one flow.</li>
-                <li>Accelerate time-to-AVD — pre-curated apps, staged deployments, and self-service reduce migration lead time and ticket load.</li>
-                <li>Run with confidence — integrated patching + SSO keep apps compliant and users productive post-cutover.</li>
-              </ol>
-            </article>
+          <div class="flex justify-end mb-2 sm:hidden">
+            <button type="button" class="text-sm text-accent underline" data-action="toggle-all-accordions">Expand All</button>
+          </div>
+          <div class="space-y-3">
+            ${accordion('why-change', 'Why Change', 'circle-help', `<ul class="mt-2 list-disc pl-5 text-sm text-secondary-text">${STATE.whySections.change.map(li => `<li>${li}</li>`).join('')}</ul>`)}
+            ${accordion('why-now', 'Why Now', 'alarm-clock', `<ul class="mt-2 list-disc pl-5 text-sm text-secondary-text">${STATE.whySections.now.map(li => `<li>${li}</li>`).join('')}</ul>`)}
+            ${accordion('why-better', 'Why Better Together', 'sparkles', `<ol class="mt-2 list-decimal pl-5 text-sm text-secondary-text space-y-2">${STATE.whySections.better.map(li => `<li>${li}</li>`).join('')}</ol>`)}
           </div>
         </section>
       `;
     }
+    function accordion(id, title, icon, body) {
+      return `
+        <article class="bg-bg-card rounded-xl border border-border p-4 transition-shadow shadow-md">
+          <button class="accordion-header flex items-center justify-between w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-id="${id}" aria-expanded="false" aria-controls="${id}-content">
+            <div class="flex items-center gap-2">
+              <i data-lucide="${icon}" class="h-5 w-5 text-accent" aria-hidden="true"></i>
+              <h3 class="font-semibold">${title}</h3>
+            </div>
+            <i data-lucide="chevron-down" class="chevron w-5 h-5 text-secondary-text transition-transform duration-150 ease-[cubic-bezier(0.2,0.8,0.2,1)]"></i>
+          </button>
+          <div id="${id}-content" class="accordion-content max-h-0 overflow-hidden transition-[max-height] duration-150 ease-[cubic-bezier(0.2,0.8,0.2,1)] pt-2">
+            ${body}
+          </div>
+        </article>
+      `;
+    }
     function problemTile(title,icon,body){
       return `
-        <article class="bg-bg-card rounded-xl border border-border p-4">
+        <article class="bg-bg-card rounded-xl border border-border p-4 transition hover:shadow-lg hover:-translate-y-1">
           <div class="flex items-center gap-2">
             <i data-lucide="${icon}" class="w-5 h-5 text-accent" aria-hidden="true"></i>
             <h3 class="font-semibold">${title}</h3>
@@ -731,6 +703,96 @@ Assumptions: ${fmtNumberShort(i.users)} users, ${i.apps} apps, $${i.costPerHour}
       return { name, svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24" height="24" aria-label="${name}"><rect x="1.5" y="1.5" width="45" height="45" rx="12" fill="#F3F4F6" stroke="#E2E8F0"/><path d="M24 12c5 7-2 9 3 14 3 3 2 9-3 11-5-2-6-8-3-11 5-5-3-7 3-14z" fill="${c1}"/><circle cx="26" cy="28" r="4" fill="${c2}"/></svg>` };
     }
     function shade(hex,m){ const c=hex.replace('#',''); const n=[0,1,2].map(i=>parseInt(c.slice(i*2,i*2+2),16)); const s=n.map(v=>Math.max(0,Math.min(255,Math.round(v*m)))); return '#'+s.map(v=>v.toString(16).padStart(2,'0')).join(''); }
+    function modalBtn(id,label){
+      return `<button type="button" class="rounded-lg bg-bg-card border border-border shadow-sm px-4 py-2 text-sm font-medium text-primary-text hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="open-modal" data-id="${id}">${label}</button>`;
+    }
+    function renderModal(id){
+      let title = '';
+      let content = '';
+      if(id==='better'){
+        title = 'Better Together: Microsoft + Recast + Nerdio';
+        content = `
+          <p class="mt-2 text-sm text-secondary-text">Microsoft provides the trusted foundation — Intune and Azure handle security, device management, and compliance.</p>
+          <p class="mt-2 text-sm text-secondary-text">Recast adds the power layer — one workspace to package, deploy, update, and retire apps across Intune, SCCM, Citrix, Omnissa, and Azure.</p>
+          <ul class="mt-2 list-disc pl-5 text-sm text-secondary-text space-y-1">
+            <li>8,000+ pre-tested enterprise apps ready to go</li>
+            <li>Automated patching, validation, and compliance</li>
+            <li>Unified dashboard for full visibility</li>
+            <li>Policy-driven automation that cuts manual work by 60%+</li>
+            <li>End users get the right app instantly — no tickets, no waiting</li>
+          </ul>
+          <p class="mt-2 text-sm text-secondary-text">Configured once — delivered everywhere.</p>
+          <p class="mt-2 text-sm text-secondary-text">Nerdio completes the story — giving partners and customers the front-end workspace experience that brings Recast’s automation and Microsoft’s infrastructure together in a single, easy-to-use platform.</p>
+        `;
+      } else if(id==='onboarding'){
+        title = 'Fast, Guided Onboarding';
+        content = `
+          <ul class="mt-2 list-disc pl-5 text-sm text-secondary-text space-y-1">
+            <li>Standard rollout: 4–6 weeks (Kickoff → Implementation → UAT → Launch → Enablement)</li>
+            <li>Works with existing Intune/Azure setup — no new infrastructure</li>
+            <li>Guided setup with a Customer Success Manager</li>
+            <li>Only 1–2 IT engineers needed part-time</li>
+            <li>Includes training, certification, and success planning</li>
+          </ul>
+          <p class="mt-2 text-sm text-secondary-text">From first call to production in weeks, not months.</p>
+        `;
+      } else if(id==='proven'){
+        title = 'Proven and Trusted';
+        content = `
+          <ul class="mt-2 list-disc pl-5 text-sm text-secondary-text space-y-1">
+            <li>60M+ endpoints, 70K+ customers, 130+ countries</li>
+            <li>Trusted by global brands and public sector leaders</li>
+            <li>87 CSAT — highest in the industry</li>
+            <li>SOC 2 and ISO 27001 certified</li>
+          </ul>
+          <p class="mt-2 text-sm text-secondary-text">Trusted by organizations that can’t afford downtime.</p>
+        `;
+      }
+      return `
+        <div class="fixed inset-0 bg-black/30 flex items-center justify-center z-50" data-action="close-modal-bg">
+          <div class="bg-bg-card rounded-2xl shadow-xl p-6 max-w-md w-full mx-4 scale-95 opacity-0 transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]" data-modal-content>
+            <div class="flex justify-between items-start">
+              <div>
+                <h2 id="modal-title" class="text-lg font-bold">${title}</h2>
+                ${content}
+              </div>
+              <button type="button" class="text-secondary-text hover:text-primary-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="close-modal"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    function renderEditWhyModal() {
+      return `
+        <div class="fixed inset-0 bg-black/30 flex items-center justify-center z-50" data-action="close-modal-bg">
+          <div class="bg-bg-card rounded-2xl shadow-xl p-6 max-w-xl w-full mx-4 scale-95 opacity-0 transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]" data-modal-content>
+            <div class="flex justify-between items-start">
+              <h2 class="text-lg font-bold">Edit Why Sections</h2>
+              <button type="button" class="text-secondary-text hover:text-primary-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" data-action="close-modal"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="mt-4 space-y-4">
+              <label class="block">
+                <span class="font-medium">Why Change (one bullet per line)</span>
+                <textarea id="why-change-text" rows="4" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.change.join('\n')}</textarea>
+              </label>
+              <label class="block">
+                <span class="font-medium">Why Now (one bullet per line)</span>
+                <textarea id="why-now-text" rows="4" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.now.join('\n')}</textarea>
+              </label>
+              <label class="block">
+                <span class="font-medium">Why Better Together (one bullet per line)</span>
+                <textarea id="why-better-text" rows="4" class="mt-1 w-full rounded-lg border border-border p-2 focus:border-accent focus:ring-accent">${STATE.whySections.better.join('\n')}</textarea>
+              </label>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+              <button type="button" class="rounded-full border border-border bg-bg-card px-4 py-2 text-sm" data-action="close-modal">Cancel</button>
+              <button type="button" class="rounded-full border border-border bg-bg-card px-4 py-2 text-sm" data-action="reset-why">Reset to Default</button>
+              <button type="button" class="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white" data-action="save-why">Save</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
     function attachEvents(){
       const root=document.getElementById('app');
       root.querySelectorAll('[data-action="tab"]').forEach(b=>b.addEventListener('click',e=>{ STATE.tab=e.currentTarget.getAttribute('data-id'); render(); }));
@@ -760,8 +822,68 @@ Assumptions: ${fmtNumberShort(i.users)} users, ${i.apps} apps, $${i.costPerHour}
       root.querySelector('[data-action="reset"]')?.addEventListener('click', resetAll);
       root.querySelectorAll('[data-action="open-modal"]').forEach(b=>b.addEventListener('click',e=>{ STATE.activeModal=e.currentTarget.getAttribute('data-id'); render(); }));
       root.querySelector('[data-action="close-modal-bg"]')?.addEventListener('click',e=>{ if(e.target===e.currentTarget){ STATE.activeModal=null; render(); } });
-      root.querySelector('[data-action="close-modal"]')?.addEventListener('click',()=>{ STATE.activeModal=null; render(); });
+      root.querySelectorAll('[data-action="close-modal"]').forEach(b=>b.addEventListener('click',()=>{ STATE.activeModal=null; render(); }));
+      root.querySelector('[data-action="save-why"]')?.addEventListener('click', () => {
+        STATE.whySections.change = document.getElementById('why-change-text').value.split('\n').map(s => s.trim()).filter(Boolean);
+        STATE.whySections.now = document.getElementById('why-now-text').value.split('\n').map(s => s.trim()).filter(Boolean);
+        STATE.whySections.better = document.getElementById('why-better-text').value.split('\n').map(s => s.trim()).filter(Boolean);
+        saveWhyToStorage();
+        STATE.activeModal = null;
+        render();
+      });
+      root.querySelector('[data-action="reset-why"]')?.addEventListener('click', () => {
+        STATE.whySections = { ...DEFAULT_WHY_SECTIONS };
+        saveWhyToStorage();
+        STATE.activeModal = null;
+        render();
+      });
+      document.querySelectorAll('.accordion-header').forEach(header => {
+        header.addEventListener('click', toggleAccordion);
+        header.addEventListener('keydown', accordionKeydown);
+      });
+      root.querySelector('[data-action="toggle-all-accordions"]')?.addEventListener('click', () => {
+        const headers = document.querySelectorAll('.accordion-header');
+        const allOpen = [...headers].every(h => h.getAttribute('aria-expanded') === 'true');
+        headers.forEach(header => {
+          const e = { currentTarget: header };
+          if (allOpen) {
+            if (header.getAttribute('aria-expanded') === 'true') toggleAccordion(e);
+          } else {
+            if (header.getAttribute('aria-expanded') === 'false') toggleAccordion(e);
+          }
+        });
+        const btn = document.querySelector('[data-action="toggle-all-accordions"]');
+        if (btn) btn.textContent = allOpen ? 'Expand All' : 'Collapse All';
+      });
       document.addEventListener('keydown', e=>{if(e.key==='Escape' && STATE.activeModal){ STATE.activeModal=null; render(); }});
+    }
+    function toggleAccordion(e) {
+      const header = e.currentTarget;
+      const content = header.nextElementSibling;
+      const isOpen = header.getAttribute('aria-expanded') === 'true';
+      header.setAttribute('aria-expanded', `${!isOpen}`);
+      const chevron = header.querySelector('.chevron');
+      if (isOpen) {
+        chevron.classList.remove('rotate-180');
+        content.style.maxHeight = '0px';
+        header.parentElement.classList.remove('border-l-4', 'border-accent');
+      } else {
+        chevron.classList.add('rotate-180');
+        content.style.maxHeight = `${content.scrollHeight}px`;
+        header.parentElement.classList.add('border-l-4', 'border-accent');
+      }
+    }
+    function accordionKeydown(e) {
+      if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+        e.preventDefault();
+        const headers = [...document.querySelectorAll('.accordion-header')];
+        let idx = headers.indexOf(e.currentTarget);
+        if (e.key === 'ArrowDown') idx = (idx + 1) % headers.length;
+        else if (e.key === 'ArrowUp') idx = (idx - 1 + headers.length) % headers.length;
+        else if (e.key === 'Home') idx = 0;
+        else if (e.key === 'End') idx = headers.length - 1;
+        headers[idx].focus();
+      }
     }
     const animations = [
       {sel: '.bar', anim: 'animate-bar-grow', initial: {transform: 'scaleX(0)'}},
