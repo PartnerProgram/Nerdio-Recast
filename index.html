@@ -89,34 +89,33 @@
     };
     const DEFAULT_WHY_SECTIONS = {
       change: {
-        subtitle: 'Freedom from Vendor Lock-In',
+        subtitle: 'The problem isn’t hardware anymore — it’s application drag.',
         intro: '',
         bullets: [
-          'Legacy VDI costs more every year and delivers less.',
-          'The real blocker isn’t desktops — it’s the weight of managing thousands of apps by hand.',
-          'Modern IT needs flexibility, not lock-in.'
+          'Networks are fast, endpoints are reliable, but IT teams are buried keeping thousands of apps updated and secure with the same headcount.',
+          'That friction blocks every big initiative — whether it’s moving from Citrix to AVD, SCCM to Intune, or piloting new hardware.',
+          'It’s not that teams can’t modernize — they’re just stuck maintaining what already exists.'
         ],
         conclusion: ''
       },
       now: {
-        subtitle: 'Don’t Let Legacy Vendors Tax Your Future',
+        subtitle: 'The math has stopped working.',
         intro: '',
         bullets: [
-          'Renewals are rising 20–30%.',
-          'In six weeks, you can prove a faster, safer way forward.',
-          'Waiting just makes the next renewal more expensive.'
+          'Workloads have doubled, but teams haven’t.',
+          'Renewals are rising, security risks grow with every delayed update, and users expect everything to “just work” from anywhere.',
+          'Every month you wait makes modernization harder — but in six weeks, you can prove there’s a faster, safer way forward.'
         ],
         conclusion: ''
       },
       better: {
-        subtitle: 'Microsoft + Nerdio + Recast',
+        subtitle: 'Nerdio + Recast remove the three blockers to change — cost, risk, and time.',
         intro: '',
         bullets: [
-          'Nerdio automates desktops.',
-          'Recast automates applications.',
-          'Together, we remove the three blockers to change — cost, risk, and time.'
+          'Nerdio automates Azure Virtual Desktop and Intune — fast, scalable desktop orchestration.',
+          'Recast automates application installs, updates, and access — across AVD, ConfigMgr, and Intune.'
         ],
-        conclusion: ''
+        conclusion: 'Together, they deliver one workspace for every app and every user, no matter the platform.\n\nIT moves from months of packaging and patching to minutes.\n\nEnd users never notice the shift — everything just works.\n\nModernization without the chaos.'
       }
     };
     const STATE = {
@@ -158,7 +157,7 @@
           <div class="relative mx-auto max-w-6xl px-4 pt-8 pb-6">
             <h1 class="text-3xl sm:text-4xl font-bold">Nerdio + Recast — Better Together</h1>
             <p class="mt-2 max-w-3xl text-secondary-text">
-              Nerdio orchestrates Cloud PCs/AVD/Intune. Recast controls the apps. Together we deliver one governed, identity-driven workspace—desktops and applications provisioned, patched, and ready in a single flow.
+              According to Gartner’s Magic Quadrant 2025, over the past three years Microsoft’s leadership position has accelerated while legacy and niche VDI vendors have steadily declined in both vision and execution
             </p>
             <nav class="mt-5 flex w-full flex-wrap gap-2 rounded-full bg-bg-card p-1 border border-border shadow-sm" role="tablist" aria-label="Primary">
               ${tabBtn('current','Current State','alert-circle')}
@@ -242,7 +241,7 @@
         <h4 class="text-base font-semibold mt-2">${sec.subtitle}</h4>
         <p class="mt-2 text-sm text-secondary-text">${sec.intro.replace(/\n/g, '<br>')}</p>
         <ul class="mt-2 list-disc pl-5 text-sm text-secondary-text">${sec.bullets.map(li => `<li>${li}</li>`).join('')}</ul>
-        <p class="mt-2 text-sm text-secondary-text">${sec.conclusion}</p>
+        <p class="mt-2 text-sm text-secondary-text">${sec.conclusion.replace(/\n/g, '<br>')}</p>
       `;
     }
     function accordion(id, title, icon, body) {
